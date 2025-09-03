@@ -1,0 +1,32 @@
+# Dockerfile for head node (Windows laptop / master node)
+FROM python:3.9-slim
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    gcc \
+    g++ \
+    openssh-client \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set working directory
+WORKDIR /app
+
+# Copy requirements and install Python dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy application code
+COPY distributed_ga/ ./distributed_ga/
+
+# Create directories for results and logs
+RUN mkdir -p /app/results /app/logs
+
+# Set Python path
+ENV PYTHONPATH=/app
+
+# Expose Ray ports
+EXPOSE 10001 8265
+
+# Default command
+CMD ["python", "distributed_ga/scripts/start_head.py"]
