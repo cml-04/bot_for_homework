@@ -1,0 +1,66 @@
+# Genetic Algorithm Configuration
+
+# Population settings
+population:
+  size: 100
+  elitism_size: 2
+
+# Problem settings
+problem:
+  dimensions: 10
+  bounds: [-5.12, 5.12]  # Will be replicated for all dimensions
+  function_name: "rastrigin"  # rastrigin, sphere, rosenbrock, ackley, griewank, schwefel
+
+# Algorithm parameters
+algorithm:
+  max_generations: 1000
+  target_fitness: 1e-6
+  convergence_threshold: 1e-8
+  convergence_generations: 50
+  
+# Genetic operators
+operators:
+  selection:
+    type: "roulette_wheel"  # roulette_wheel, tournament
+    tournament_size: 3  # Only used for tournament selection
+  
+  crossover:
+    type: "single_point"  # single_point, uniform, arithmetic
+    probability: 0.8
+    uniform_probability: 0.5  # Only used for uniform crossover
+    arithmetic_alpha: 0.5  # Only used for arithmetic crossover
+  
+  mutation:
+    type: "gaussian"  # gaussian, uniform
+    probability: 0.1
+    gaussian_sigma: 0.1  # Only used for Gaussian mutation
+    uniform_strength: 0.1  # Only used for uniform mutation
+
+# Distributed computing settings
+distributed:
+  enabled: true
+  num_workers: null  # null for auto-detect
+  batch_size: null  # null for auto-calculate
+  
+  # Island model settings
+  island_model: false
+  migration_rate: 0.1
+  migration_interval: 10
+
+# Logging and output
+logging:
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR
+  log_file: null  # null for console only
+  
+output:
+  save_results: true
+  results_dir: "./results"
+  checkpoint_interval: 50  # generations
+  save_plots: true
+  plot_format: "png"  # png, pdf, svg
+
+# Performance settings
+performance:
+  parallel_evaluation: true
+  parallel_operators: true
+  memory_limit_mb: null  # null for no limit

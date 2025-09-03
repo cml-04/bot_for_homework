@@ -1,0 +1,182 @@
+# Cluster Configuration for Distributed Genetic Algorithm
+
+# Master node configuration (Windows laptop)
+master:
+  # Ray configuration
+  ray:
+    head_node: true
+    port: 10001
+    dashboard_port: 8265
+    object_store_memory: 1000000000  # 1GB
+    
+  # Network configuration
+  network:
+    host: "0.0.0.0"
+    allow_external_connections: true
+    firewall_rules:
+      - port: 10001
+        protocol: "tcp"
+        description: "Ray head node"
+      - port: 8265
+        protocol: "tcp"
+        description: "Ray dashboard"
+  
+  # Resource allocation
+  resources:
+    cpu: null  # null for all available
+    memory_mb: null  # null for auto-detect
+    gpu: 0  # Number of GPUs
+  
+  # SSH configuration for worker management
+  ssh:
+    private_key_path: "~/.ssh/id_rsa"
+    known_hosts_path: "~/.ssh/known_hosts"
+
+# Worker nodes configuration (Linux servers)
+workers:
+  - name: "linux_worker_1"
+    host: "192.168.1.100"  # Replace with actual IP
+    port: 22
+    username: "user"
+    
+    # Ray configuration
+    ray:
+      num_cpus: null  # null for auto-detect
+      num_gpus: 0
+      memory: null  # null for auto-detect
+      object_store_memory: 500000000  # 500MB
+      
+    # Resource limits
+    resources:
+      max_cpu_percent: 90
+      max_memory_percent: 80
+      
+    # Connection settings
+    connection:
+      timeout: 30
+      retry_attempts: 3
+      retry_delay: 5
+      
+    # Environment
+    environment:
+      python_path: "/usr/bin/python3"
+      conda_env: null  # null if not using conda
+      virtual_env: null  # null if not using virtualenv
+      working_directory: "/tmp/distributed_ga"
+  
+  - name: "linux_worker_2" 
+    host: "192.168.1.101"  # Replace with actual IP
+    port: 22
+    username: "user"
+    
+    ray:
+      num_cpus: null
+      num_gpus: 0
+      memory: null
+      object_store_memory: 500000000
+      
+    resources:
+      max_cpu_percent: 90
+      max_memory_percent: 80
+      
+    connection:
+      timeout: 30
+      retry_attempts: 3
+      retry_delay: 5
+      
+    environment:
+      python_path: "/usr/bin/python3"
+      conda_env: null
+      virtual_env: null
+      working_directory: "/tmp/distributed_ga"
+
+# Security settings
+security:
+  # Authentication
+  authentication:
+    enabled: false  # Set to true for production
+    token: null  # Random token for cluster authentication
+    
+  # Encryption
+  encryption:
+    enabled: false  # Set to true for production
+    certificate_path: null
+    private_key_path: null
+  
+  # Network security
+  network_security:
+    allowed_ips: []  # Empty list allows all IPs
+    blocked_ips: []
+    rate_limiting:
+      enabled: false
+      max_requests_per_minute: 1000
+
+# Monitoring and logging
+monitoring:
+  # Performance monitoring
+  performance:
+    enabled: true
+    collection_interval: 10  # seconds
+    metrics:
+      - "cpu_usage"
+      - "memory_usage"
+      - "network_io"
+      - "disk_io"
+      
+  # Health checks
+  health_checks:
+    enabled: true
+    interval: 30  # seconds
+    timeout: 10  # seconds
+    
+  # Logging
+  logging:
+    level: "INFO"
+    log_rotation: true
+    max_log_size_mb: 100
+    backup_count: 5
+
+# Fault tolerance
+fault_tolerance:
+  # Node failure handling
+  node_failure:
+    detection_timeout: 60  # seconds
+    auto_restart: true
+    max_restart_attempts: 3
+    
+  # Task failure handling  
+  task_failure:
+    max_retries: 3
+    retry_delay: 5  # seconds
+    backoff_multiplier: 2.0
+    
+  # Checkpointing
+  checkpointing:
+    enabled: true
+    interval: 100  # generations
+    max_checkpoints: 5
+    compression: true
+
+# Docker configuration (optional)
+docker:
+  enabled: false
+  
+  # Master container
+  master_image: "distributed_ga:master"
+  master_container: "ga_master"
+  
+  # Worker container
+  worker_image: "distributed_ga:worker" 
+  worker_container_prefix: "ga_worker"
+  
+  # Docker network
+  network:
+    name: "ga_network"
+    driver: "bridge"
+    
+  # Volume mounts
+  volumes:
+    - host_path: "./results"
+      container_path: "/app/results"
+    - host_path: "./logs"
+      container_path: "/app/logs"
